@@ -1,0 +1,92 @@
+
+#social
+{
+	position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  color: white;
+	margin-bottom: 0;
+	padding: 0;
+	height: 15vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+#social ul
+{
+	position: relative;
+	margin: 0;
+	padding: 0;
+	display: flex;
+}
+#social ul li
+{
+	position: relative;
+	list-style: none;
+	width: 50px;
+	height: 50px;
+	margin: 0 25px;
+	transform: rotate(-30deg) skew(25deg);
+	background: #ccc;
+}
+#social ul li span
+{
+	position: absolute;
+	top:0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	transition: 0.5s;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-size: 30px !important;
+}
+#social ul li:hover span:nth-child(5)
+{
+	transform: translate(20px,-20px);
+	opacity: 1;	
+}
+#social ul li:hover span:nth-child(4)
+{
+	transform: translate(15px,-15px);
+	opacity: .8;	
+}
+#social ul li:hover span:nth-child(3)
+{
+	transform: translate(10px,-10px);
+	opacity: .6;	
+}
+#social ul li:hover span:nth-child(2)
+{
+	transform: translate(5px,-5px);
+	opacity: .4;	
+}
+#social ul li:hover span:nth-child(1)
+{
+	transform: translate(0,0);
+	opacity: .2;	
+}
+#social ul li:nth-child(1) span
+{
+	background: #3b5999;
+}
+#social ul li:nth-child(2) span
+{
+	background: #55acee;
+}
+#social ul li:nth-child(3) span
+{
+	background: #dd4b39;
+}
+#social ul li:nth-child(4) span
+{
+	background: #007785;
+}
+#social ul li:nth-child(5) span
+{
+	background: #e4405f;
+}
