@@ -1,4 +1,3 @@
-
 from __future__ import absolute_import
 from __future__ import print_function
 import tensorflow as tf
@@ -72,6 +71,7 @@ input_shape = (None, img_w, img_h, img_channels)
 class FLAGS():
   pass
 
+
 FLAGS.batch_size = 200
 FLAGS.max_steps = 1000
 FLAGS.eval_steps = 100
@@ -84,7 +84,7 @@ FLAGS.use_checkpoint = False
 # In[160]:
 
 
-model_dir = 'gs://indic2019/model_dir/run_1'
+model_dir = 'gs://indic2019/model_dir/run'
 
 
 # Extract function takes data record and return images and data
@@ -347,23 +347,71 @@ def model_fn(features, labels, mode, params):
 # In[110]:
 
 
-def preprocess(image):
-  img1 = tf.decode_raw(image, tf.float32)
-  img1 = tf.reshape(image, (img_w, img_h, img_channels))
-  img1 = tf.image.per_image_standardization(img1)
-  return img1
+# def preprocess(image):
+#   img1 = tf.decode_raw(image, tf.float32)
+#   img1 = tf.reshape(image, (img_w, img_h, img_channels))
+#   img1 = tf.image.per_image_standardization(img1)
+#   return img1
+
+#Edited by Shivam
+def preprocess(image,img_w,img_h,img_channels):
+  #print(image)
+  print(image)
+  img_decoded = tf.image.decode_jpeg(image, channels=1)
+  #print(img_decoded)
+  img_expanded = tf.expand_dims(img_decoded, 0)
+  #print(img_expanded)
+  img_resize = tf.image.resize_bilinear(img_expanded,(img_w, img_h))
+  #print(img_resize)
+  img_squeezed = tf.squeeze(img_resize,0)
+  #print(img_squeezed)
+  img_standardized = tf.image.per_image_standardization(img_squeezed)
+  #print(img_standardized)
+  img_expanded = tf.expand_dims(img_standardized, 0)
+  return img_expanded
 
 
 # <h3>Serving function</h3>
 
 # In[111]:
 
+#Edited by Shivam
+# def serving_input_fn():
+#   receiver_tensor = {'images_bytes': tf.placeholder(dtype=tf.float32, shape=[None])}
+#   features = {'images': tf.map_fn(preprocess, receiver_tensor['images'])}
+#   return tf.estimator.export.ServingInputReceiver(features, receiver_tensor)
+
+  #(Shivam)code to read the image from url
+# def read_and_preprocess(filename, augment=False):
+#     # decode the image file starting from the filename
+#     # end up with pixel values that are in the -1, 1 range
+#     image_contents = tf.read_file(filename)
+#     image = tf.image.decode_jpeg(image_contents, channels=1)
+#     image = tf.image.convert_image_dtype(image, dtype=tf.float32) # 0-1
+#     image = tf.expand_dims(image, 0) # resize_bilinear needs batches
+#     image = tf.image.resize_bilinear(image, [28,28], align_corners=False)
+#     #image = tf.image.per_image_whitening(image)  # useful if mean not important
+#     image = tf.subtract(image, 0.5)
+#     image = tf.multiply(image, 2.0) # -1 to 1
+#     return image
 
 def serving_input_fn():
-  receiver_tensor = {'images_bytes': tf.placeholder(dtype=tf.float32, shape=[None])}
-  features = {'images': tf.map_fn(preprocess, receiver_tensor['images'])}
-  return tf.estimator.export.ServingInputReceiver(features, receiver_tensor)
+    # inputs = {'imageurl': tf.placeholder(tf.string, shape=())}
+    # filename = tf.squeeze(inputs['imageurl']) # make it a scalar
+    # image = read_and_preprocess(filename)
+    # # make the outer dimension unknown (and not 1)
+    # image = tf.placeholder_with_default(image, shape=[None, img_w,img_h,img_channels])
 
+    # features = {'image' : image}
+    # return tf.estimator.export.ServingInputReceiver(features, inputs)
+    receiver_tensor = {'images': tf.placeholder(dtype=tf.string, shape=())}
+    image = receiver_tensor['images']
+    image_standardized = preprocess(image,img_w,img_h,img_channels)
+    # make the outer dimension unknown (and not 1)
+    image = tf.placeholder_with_default(image_standardized, shape=[None, img_w,img_h,img_channels])
+    features = {'images': image}
+
+    return tf.estimator.export.ServingInputReceiver(features, receiver_tensor)
 
 # 
 # 
