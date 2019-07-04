@@ -4,39 +4,35 @@
   <title>Lipi | Akshara</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"> 
+  <!-- Firebase script link --> 
   <script src="https://www.gstatic.com/firebasejs/6.0.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/6.0.2/firebase-storage.js"></script>
   <script src="https://www.gstatic.com/firebasejs/6.0.2/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/6.0.2/firebase-firestore.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <!-- Meta tags for search engine -->
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="author" content="Shivam Sahu" />
   <meta name="description" content="Text Recognition in Kannada">
   <meta name="keywords" content="Kannada,TextRecognition,sahushivam,Tensorflow, Estimators">
+  <!-- font  -->
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-
+  <!-- Icon in title bar -->
   <link rel="icon" type="image/gif/png" href="favicon.png">
-
-  <link rel="stylesheet" media="screen and (min-width: 900px)" href="style.css">
-  <link rel="stylesheet" media="screen and (max-width: 900px)" href="smallscreen.css">
-  <style type="text/css">
-    html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-}
-  </style>
+  <!-- Css file -->
+  <link rel="stylesheet"  href="style.css">
 </head>
 <body>
 
 <nav class="navbar navbar-light" style="background-color: #135dd6;">
-  <div class="container-fluid">
+  <div class="container1-fluid">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar" >
+        <span class="icon-bar" style="background: #c8e20e;"></span>
+        <span class="icon-bar" style="background: #c8e20e;"></span>
+        <span class="icon-bar" style="background: #c8e20e;"></span>                        
       </button>
       <a class="navbar-brand" href="#" style="color: #c8e20e;">Akshara</a>
     </div>
@@ -51,29 +47,31 @@
 </nav>
   
 <div class="tab-content">
-  <div id="capture" class="tab-pane fade in active row">
-  <div class="col-sm-6">
-  <div id="my_camera" style="padding-left: 5px;"></div>
-  <form style="padding: 5px;">
-    <input type=button value="Take Snapshot" onClick="take_snapshot(); setTimeout(predict1, 3000);" class="btn" />
-  </form>
-</div>
-    <div id="results" class="col-sm-6"></div>  
-  <!-- Code to handle taking the snapshot and displaying it locally -->
+  <div id="capture" class="tab-pane fade in active row"> 
+    <div id="container1" style="width: 100%;">
 
-  <script type="text/javascript" src="webcam.min.js"></script>  
-  <script language="JavaScript">
-    Webcam.set({
-      width: 420,
-      height: 340,
-      image_format: 'jpeg',
-      jpeg_quality: 90
-    });
-    Webcam.attach('#my_camera');
+  <div class="select" style="display: none;">
+    <label for="audioSource">Audio source: </label><select id="audioSource"></select>
+  </div>
 
-  </script>
-  <script language="JavaScript">
+  <div class="select">
+    <label for="videoSource">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label><select id="videoSource"></select>
+  </div>
 
+  <div id="screenshot" style="text-align:center;">
+    <div class="col-sm-6">
+        <video class="videostream" autoplay></video>
+        <p><button class="capture-button" style="display: none;" >Capture video</button></p>
+        <p><button id="screenshot-button" class="btn">Take screenshot</button></p>
+    </div>
+    <div id="results" class="col-sm-6"> 
+        <img id="Myimage">
+    </div>
+  </div>
+  <script type="text/javascript">
+
+var filename = (+new Date).toString(36)+".jpg";
+        console.log(filename);
         const config = {
         apiKey: "AIzaSyDIR4m3h_JRbl-v8jQrvtY9W08Kdg9T1wM",
         authDomain: "indic2019.firebaseapp.com",
@@ -84,12 +82,50 @@
         appId: "1:150075107394:web:c6ef8837900bc388"
         };
         firebase.initializeApp(config);
-         var filename = (+new Date).toString(36);
-        function take_snapshot() {
-          Webcam.snap( function(data_uri) {
+
+  const captureVideoButton =
+    document.querySelector('#screenshot .capture-button');
+  const screenshotButton = document.querySelector('#screenshot-button');
+  const img = document.querySelector('#screenshot img');
+  const video = document.querySelector('#screenshot video');
+  const canvas = document.createElement('canvas');
+
+  captureVideoButton.onclick = function() {
+    navigator.mediaDevices.getUserMedia(constraints).
+      then(handleSuccess).catch(handleError);
+  };
+
+  screenshotButton.onclick = video.onclick = function() {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    img.src = canvas.toDataURL('image/png');
+     var storage = firebase.storage();
+      var storageRef = storage.ref();
+      var file = dataURItoBlob(img.src);
+      var imagesRef = storageRef.child(filename);
+      imagesRef.put(file).then(function(snapshot) {
+      console.log('Uploaded a blob or file!');
+       });
+       //var myVar = setInterval(predictForUpload, 10000);
+       predictForUpload();
+  };
+
+  function handleSuccess(stream){
+    screenshotButton.disabled = false;
+    video.srcObject = stream;
+  }
+  </script>
+  <script src="main.js"></script>
+
+</div>
+   <script language="JavaScript">
+   		
+/*          Webcam.snap( function(data_uri) {
             document.getElementById('results').innerHTML = 
               '' + 
               '<img id="Myimage" src="'+data_uri+'"/>';
+               
               var storage = firebase.storage();
               var storageRef = storage.ref();
               var file = dataURItoBlob(data_uri);
@@ -100,51 +136,52 @@
 
                });
           });
-         }
-          function predict1()
+          predictForUpload();
+         }*/
+          function predictForUpload()
           {
-              var db = firebase.firestore();
-              var docRef = db.collection("file").doc(filename);
-              docRef.get().then(function(doc) {
-                if (doc.exists) {
-                    console.log("Document data:", doc.data());
-                    var docData=doc.data();
-                    var coord= docData["coordinate"];
-                    coordinate= JSON.parse(coord);
-                    document.getElementById('Myimage').src =Render1(coordinate);
-                  } else {
-                    // doc.data() will be undefined in this case
-                    console.log("No such document!");
-                }
-            }).catch(function(error) {
-                console.log("Error getting document:", error);
-            });
-          }
-          function Render1(y) {   // check the image type
-             var img=document.getElementById("Myimage");
-             var canvas= document.createElement("canvas");
-            width=420;
-            height=340;
-            canvas.width = width;
-            canvas.height = height;
+          	var storage = firebase.storage();
+          	console.log("I am here");
+         	var storageRef = firebase.storage().ref();
+         	var spaceRef = storage.refFromURL('gs://indic2019-output/A.png');
+         	spaceRef.getDownloadURL().then(function(url) {
+         	var test = url;
+            document.getElementById('Myimage').src=test;
+            document.getElementById('Myimage').width=370;
+            document.getElementById('Myimage').height=275;
+                  }).catch(function(error) {
 
-              bb_box_width = y[3] * width
-              bb_box_height = y[4] * height
-              center_x = y[1] * width
-              center_y = y[2] * height
-              x1=(center_x - (bb_box_width / 2))
-              y1=(center_y - (bb_box_height / 2))
-              x2=(center_x + (bb_box_width / 2))
-              y2=(center_y + (bb_box_height / 2))
+         	});
+    	 }
 
-            var context = canvas.getContext("2d");
-            context.drawImage(img,0,0,img.width,img.height,0,0,width,height);
-            context.beginPath();
-            context.rect(x1, y1, bb_box_width, bb_box_height);
-            context.lineWidth = 2;
-            context.stroke();
-            return canvas.toDataURL("image/png");
-            }
+    	 	//This function was for drawing the bounding boxes
+
+          // function RenderForUpload(y)	 {   // check the image type
+          //    var img=document.getElementById("Myimage");
+          //    var canvas= document.createElement("canvas");
+          //   width=640;
+          //   height=480;
+          //   canvas.width = width;
+          //   canvas.height = height;
+
+          //     bb_box_width = y[3] * width
+          //     bb_box_height = y[4] * height
+          //     center_x = y[1] * width
+          //     center_y = y[2] * height
+          //     x1=(center_x - (bb_box_width / 2))
+          //     y1=(center_y - (bb_box_height / 2))
+          //     x2=(center_x + (bb_box_width / 2))
+          //     y2=(center_y + (bb_box_height / 2))
+
+          //   var context = canvas.getContext("2d");
+          //   context.drawImage(img,0,0,width,height,0,0,width,height);
+          //   context.beginPath();
+          //   context.rect(x1, y1, bb_box_width, bb_box_height);
+          //   context.lineWidth = 2;
+          //   context.stroke();
+          //   return canvas.toDataURL("image/png");
+          //   }
+
         function dataURItoBlob(dataURI) {
           let byteString;
           let mimeString;
@@ -166,7 +203,7 @@
   </div>  
   <div id="upload" class="tab-pane fade" style="padding: 10px; margin: 10px;">
     <div class="custom-file-upload">
-      <h3>Upload file<span style="font-size: 1em; margin-left: 2%"class="glyphicon glyphicon-fire"></span></h3>
+      <h3>Upload file</h3>
         <input id="width" type="text" value="320" style="display: none;" />
         <input id="height" type="text" style="display: none;"/>
       <input type="file" style="padding-bottom: 1px;"  class="form-control-file" id="file" name="files[]" multiple accept="image/* " />
@@ -316,27 +353,18 @@
             //procedure for it
             //https://stackoverflow.com/questions/52762682/get-single-elements-from-firestore-document
             var filename = document.getElementById("file").files[0].name;
-            var db = firebase.firestore();
-            var docRef = db.collection("file").doc(filename);
-            docRef.get().then(function(doc) {
-              if (doc.exists) {
-                  console.log("Document data:");
-                  var docData=doc.data();
-                  var coord= docData["coordinate"];
-                  coordinate= JSON.parse(coord);
-                  console.log(typeof coordinate[0]);
-                  console.log(coordinate[1]);
-                  console.log(coordinate[2]);
-                  console.log(coordinate[3]);
-                  console.log(coordinate[4]);
-                  document.getElementById('myimg').src = Render(coordinate);
-              } else {
-                  // doc.data() will be undefined in this case
-                  console.log("No such document!");
-              }
-          }).catch(function(error) {
-              console.log("Error getting document:", error);
-          });
+            var storage = firebase.storage();
+          	console.log("I am here");
+         	var storageRef = firebase.storage().ref();
+         	var spaceRef = storage.refFromURL('gs://indic2019-output/A.png');
+         	spaceRef.getDownloadURL().then(function(url) {
+         	var test = url;
+            document.getElementById('myimg').src=test;
+            document.getElementById('myimg').width=300;
+            document.getElementById('myimg').height=200;
+                  }).catch(function(error) {
+
+         	});
           }
  </script>
 
