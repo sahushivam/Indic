@@ -2,30 +2,30 @@
 
 import os
 
-PROJECT = 'indic2019' # REPLACE WITH YOUR PROJECT ID
-BUCKET = 'indic2019' # REPLACE WITH YOUR BUCKET NAME
-REGION = 'us-central1' # REPLACE WITH YOUR BUCKET REGION e.g. us-central1
+PROJECT = 'indic2019' # REPLACE WITH YOUR PROJECT ID<br>
+BUCKET = 'indic2019' # REPLACE WITH YOUR BUCKET NAME<br>
+REGION = 'us-central1' # REPLACE WITH YOUR BUCKET REGION e.g. us-central1<br>
 
-os.environ['PROJECT'] = PROJECT
-os.environ['BUCKET'] = BUCKET
-os.environ['REGION'] = REGION
-
-%%bash
-gcloud config set project $PROJECT
-gcloud config set compute/region $REGION
+os.environ['PROJECT'] = PROJECT<br>
+os.environ['BUCKET'] = BUCKET<br>
+os.environ['REGION'] = REGION<br>
 
 %%bash
-gcloud ml-engine jobs submit training job_anand1 \
-    --runtime-version=1.13 \
-    --python-version=3.5 \
-    --module-name=train_anand.task \
-    --package-path=train_anand/ \
-    --staging-bucket=gs://$BUCKET \
-    --region=$REGION \
-    -- \
-    --train-steps=100 \
-    --eval-steps=3 \
-    --verbosity DEBUG
+gcloud config set project $PROJECT<br>
+gcloud config set compute/region $REGION<br>
+
+%%bash
+gcloud ml-engine jobs submit training job_anand1 \<br>
+    --runtime-version=1.13 \<br>
+    --python-version=3.5 \<br>
+    --module-name=train_anand.task \<br>
+    --package-path=train_anand/ \<br>
+    --staging-bucket=gs://$BUCKET \<br>
+    --region=$REGION \<br>
+    -- \<br>
+    --train-steps=100 \<br>
+    --eval-steps=3 \<br>
+    --verbosity DEBUG<br>
    
    <b>Write on cloud firestore using datalab</b><br>
   #!pip install firebase_admin<br>
