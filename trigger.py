@@ -1,3 +1,4 @@
+#the function was deployed as cloud function which triggers and get the coordinates of bounding box and store it in firestore.
 import os
 import firebase_admin
 import googleapiclient.discovery
