@@ -27,11 +27,11 @@ gcloud ml-engine jobs submit training job_anand1 \
     --eval-steps=3 \
     --verbosity DEBUG
    
-   <b>Write on cloud firestore using datalab</b>
-  #!pip install firebase_admin
-    import firebase_admin
-    from firebase_admin import credentials
-    from firebase_admin import firestore
+   <b>Write on cloud firestore using datalab</b><br>
+  #!pip install firebase_admin<br>
+    import firebase_admin<br>
+    from firebase_admin import credentials<br>
+    from firebase_admin import firestore<br>
 
     cred = credentials.ApplicationDefault()
     firebase_admin.initialize_app(cred, {
